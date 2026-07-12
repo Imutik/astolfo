@@ -2,14 +2,28 @@
 <html>
 <head>
     <script>
-        // Укажи здесь точное количество картинок в твоем репозитории
-        const TOTAL_IMAGES = 1; 
+        const GITHUB_USER = "Imutik"; 
         
-        // Локально выбираем случайное число
-        const randomNum = Math.floor(Math.random() * TOTAL_IMAGES) + 1;
-        
-        // Моментально перенаправляем браузер на саму картинку
-        window.location.replace(`${randomNum}.png`);
+        const apiUrl = `https://github.com{GITHUB_USER}/astolfo/contents/`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const pngFiles = data.filter(file => file.name.endsWith('.png'));
+                
+                const totalImages = pngFiles.length;
+
+                if (totalImages > 0) {
+                    const randomNum = Math.floor(Math.random() * totalImages) + 1;
+                    
+                    window.location.replace(`/astolfo/${randomNum}.png`);
+                } else {
+                    document.body.innerText = "Ошибка: В репозитории не найдено .png картинок!";
+                }
+            })
+            .catch(err => {
+                document.body.innerText = "Ошибка подключения к API GitHub: " + err;
+            });
     </script>
 </head>
 <body></body>
