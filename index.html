@@ -1,30 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <script>
-        const GITHUB_USER = "Imutik"; 
-        
-        const apiUrl = `https://github.com{GITHUB_USER}/astolfo/contents/`;
-
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                const pngFiles = data.filter(file => file.name.endsWith('.png'));
-                
-                const totalImages = pngFiles.length;
-
-                if (totalImages > 0) {
-                    const randomNum = Math.floor(Math.random() * totalImages) + 1;
-                    
-                    window.location.replace(`/astolfo/${randomNum}.png`);
-                } else {
-                    document.body.innerText = "Ошибка: В репозитории не найдено .png картинок!";
-                }
-            })
-            .catch(err => {
-                document.body.innerText = "Ошибка подключения к API GitHub: " + err;
-            });
-    </script>
-</head>
-<body></body>
-</html>
+<script>
+const u = window.location.hostname.split('.')[0], r = 'astolfo';
+fetch(`https://github.com{u}/${r}/contents/`)
+  .then(res => res.json())
+  .then(d => {
+    const p = d.filter(f => f.name.toLowerCase().endsWith('.png'));
+    const img = `https://githubusercontent.com{u}/${r}/main/${Math.floor(Math.random() * p.length) + 1}.png`;
+    fetch(img).then(res => res.blob()).then(b => {
+      const fr = new FileReader(); fr.onloadend = () => window.location.replace(fr.result); fr.readAsDataURL(b);
+    });
+  });
+</script>
