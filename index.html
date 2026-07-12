@@ -1,53 +1,24 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Astolfo Random Image</title>
+  <meta charset="UTF-8">
+  <title>Astolfo Random</title>
   <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #1a0e0e;
-      color: #f5b0b0;
-      font-family: sans-serif;
-      font-size: 1.2rem;
-      text-align: center;
-    }
-    .info {
-      background: rgba(0,0,0,0.6);
-      padding: 2rem 3rem;
-      border-radius: 2rem;
-      border: 1px solid #ff88aa;
-      box-shadow: 0 0 30px rgba(255, 136, 170, 0.3);
-    }
-    .info h1 { color: #ff99bb; margin-bottom: 0.5rem; }
-    .info p { opacity: 0.9; }
-    .status { color: #88dd88; }
+    body { background: #1a0e0e; color: #f5b0b0; font: 1.2rem sans-serif; text-align: center; padding-top: 20vh; }
+    .ok { color: #8f8; }
   </style>
 </head>
 <body>
-  <div class="info">
-    <h1>🎀 Астольфо-рандом</h1>
-    <p>Service Worker активирован — теперь можно использовать фон в Zen Browser.</p>
-    <p class="status" id="status">⏳ Регистрация...</p>
-  </div>
+  <h1>🎀 Астольфо активирован</h1>
+  <p>Service Worker зарегистрирован.</p>
+  <p id="status" class="ok">⏳ Регистрация...</p>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
-        .then(reg => {
-          document.getElementById('status').textContent = '✅ Service Worker зарегистрирован!';
-          console.log('SW registered:', reg);
-        })
-        .catch(err => {
-          document.getElementById('status').textContent = '❌ Ошибка регистрации SW: ' + err;
-          console.error('SW registration failed:', err);
-        });
+        .then(() => document.getElementById('status').textContent = '✅ Готово!')
+        .catch(e => document.getElementById('status').textContent = '❌ Ошибка: ' + e);
     } else {
-      document.getElementById('status').textContent = '❌ Service Worker не поддерживается';
+      document.getElementById('status').textContent = '❌ Браузер не поддерживает SW';
     }
   </script>
 </body>
