@@ -1,45 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
+    <title>Astolfo Image Server</title>
+</head>
+<body>
     <script>
         (function() {
-            let count = 0;
-
-            // Функция по очереди проверяет существование файлов 1.png, 2.png...
-            function checkNextImage(num) {
-                const img = new Image();
-                // Проверяем картинку прямо в твоей папке astolfo
-                img.src = `/astolfo/${num}.png`;
-                
-                img.onload = function() {
-                    count++;
-                    checkNextImage(num + 1); // Если картинка есть, проверяем следующую
-                };
-                
-                img.onerror = function() {
-                    // Как только наткнулись на ошибку — папка закончилась!
-                    // Пересчитываем рандом из того количества, что успели найти
-                    if (count > 0) {
-                        const randomNum = Math.floor(Math.random() * count) + 1;
-                        
-                        // Скачиваем выбранный случайный арт в поток байт для CSS
-                        fetch(`/astolfo/${randomNum}.png`)
-                            .then(res => res.blob())
-                            .then(blob => {
-                                const fileReader = new FileReader();
-                                fileReader.onloadend = function() {
-                                    window.location.replace(fileReader.result);
-                                };
-                                fileReader.readAsDataURL(blob);
-                            });
-                    }
-                };
-            }
-
-            // Запускаем автоматический подсчет с первой картинки
-            checkNextImage(1);
+            // Жёстко и надёжно прописываем твои данные одной строкой
+            const user = "imutik";
+            const repo = "astolfo";
+            
+            // Запрашиваем список файлов через JSONP (это намертво обходит любые CORS блокировки браузера)
+            const script = document.createElement('script');
+            script.src = `https://api.github.com/repos/${user}/${repo}/contents?callback=processImages`;
+            document.head.appendChild(script);
         })();
+
+        // Эта функция получит список файлов от GitHub без единой сетевой ошибки
+        function processImages(response) {
+            const files = response.data;
+            if (!files || !Array.isArray(files)) return;
+
+            // Сами на лету считаем, сколько .png картинок лежит в репозитории
+            const pngFiles = files.filter(function(file) {
+                return file.name.toLowerCase().endsWith('.png');
+            });
+            
+            const totalImages = pngFiles.length;
+
+            if (totalImages > 0) {
+                // Выбираем случайную картинку от 1 до конца папки
+                const randomNum = Math.floor(Math.random() * totalImages) + 1;
+                const rawImageUrl = `https://githubusercontent.com{randomNum}.png`;
+
+                // Скачиваем выбранный файл напрямую в поток байт для CSS браузера
+                fetch(rawImageUrl)
+                    .then(function(res) { 
+                        return res.blob(); 
+                    })
+                    .then(function(blob) {
+                        const fileReader = new FileReader();
+                        fileReader.onloadend = function() {
+                            // Перенаправляем на сгенерированные чистые байты картинки
+                            window.location.replace(fileReader.result);
+                        };
+                        fileReader.readAsDataURL(blob);
+                    });
+            }
+        }
     </script>
-</head>
-<body></body>
+</body>
 </html>
