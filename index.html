@@ -2,53 +2,41 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Astolfo Image Server</title>
-</head>
-<body>
+    <title>Astolfo Redirect Server</title>
     <script>
         (function() {
-            // Жёстко и надёжно прописываем твои данные одной строкой
-            const user = "imutik";
-            const repo = "astolfo";
-            
-            // Запрашиваем список файлов через JSONP (это намертво обходит любые CORS блокировки браузера)
-            const script = document.createElement('script');
-            script.src = `https://api.github.com/repos/${user}/${repo}/contents?callback=processImages`;
-            document.head.appendChild(script);
-        })();
+            let count = 0;
 
-        // Эта функция получит список файлов от GitHub без единой сетевой ошибки
-        function processImages(response) {
-            const files = response.data;
-            if (!files || !Array.isArray(files)) return;
-
-            // Сами на лету считаем, сколько .png картинок лежит в репозитории
-            const pngFiles = files.filter(function(file) {
-                return file.name.toLowerCase().endsWith('.png');
-            });
-            
-            const totalImages = pngFiles.length;
-
-            if (totalImages > 0) {
-                // Выбираем случайную картинку от 1 до конца папки
-                const randomNum = Math.floor(Math.random() * totalImages) + 1;
-                const rawImageUrl = `https://githubusercontent.com{randomNum}.png`;
-
-                // Скачиваем выбранный файл напрямую в поток байт для CSS браузера
-                fetch(rawImageUrl)
-                    .then(function(res) { 
-                        return res.blob(); 
-                    })
-                    .then(function(blob) {
-                        const fileReader = new FileReader();
-                        fileReader.onloadend = function() {
-                            // Перенаправляем на сгенерированные чистые байты картинки
-                            window.location.replace(fileReader.result);
-                        };
-                        fileReader.readAsDataURL(blob);
-                    });
+            // Локально проверяем, сколько картинок (1.png, 2.png...) есть в папке
+            function checkImages(num) {
+                const img = new Image();
+                img.src = `/astolfo/${num}.png`;
+                
+                img.onload = function() {
+                    count++;
+                    checkImages(num + 1); // Если нашли, проверяем следующую
+                };
+                
+                img.onerror = function() {
+                    // Папка закончилась! Выбираем случайное число из найденных
+                    if (count > 0) {
+                        const randomNum = Math.floor(Math.random() * count) + 1;
+                        
+                        // СТРОИМ ПРЯМУЮ RAW ССЫЛКУ НА ФАЙЛ
+                        const rawUrl = `https://githubusercontent.com{randomNum}.png`;
+                        
+                        // Моментально перенаправляем браузер прямо на этот raw-файл
+                        window.location.replace(rawUrl);
+                    } else {
+                        // Резервный план на случай сбоя
+                        window.location.replace(`https://githubusercontent.com`);
+                    }
+                };
             }
-        }
+
+            checkImages(1);
+        })();
     </script>
-</body>
+</head>
+<body></body>
 </html>
