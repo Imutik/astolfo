@@ -1,42 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <meta charset="utf-8">
-    <title>Astolfo Redirect Server</title>
-    <script>
-        (function() {
-            let count = 0;
-
-            // Локально проверяем, сколько картинок (1.png, 2.png...) есть в папке
-            function checkImages(num) {
-                const img = new Image();
-                img.src = `/astolfo/${num}.png`;
-                
-                img.onload = function() {
-                    count++;
-                    checkImages(num + 1); // Если нашли, проверяем следующую
-                };
-                
-                img.onerror = function() {
-                    // Папка закончилась! Выбираем случайное число из найденных
-                    if (count > 0) {
-                        const randomNum = Math.floor(Math.random() * count) + 1;
-                        
-                        // СТРОИМ ПРЯМУЮ RAW ССЫЛКУ НА ФАЙЛ
-                        const rawUrl = `https://raw.githubusercontent.com/Imutik/astolfo/refs/heads/main/${randomNum}.png`;
-                        
-                        // Моментально перенаправляем браузер прямо на этот raw-файл
-                        window.location.replace(rawUrl);
-                    } else {
-                        // Резервный план на случай сбоя
-                        window.location.replace(`https://githubusercontent.com`);
-                    }
-                };
-            }
-
-            checkImages(1);
-        })();
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Astolfo Random Image</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a0e0e;
+      color: #f5b0b0;
+      font-family: sans-serif;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+    .info {
+      background: rgba(0,0,0,0.6);
+      padding: 2rem 3rem;
+      border-radius: 2rem;
+      border: 1px solid #ff88aa;
+      box-shadow: 0 0 30px rgba(255, 136, 170, 0.3);
+    }
+    .info h1 { color: #ff99bb; margin-bottom: 0.5rem; }
+    .info p { opacity: 0.9; }
+    .status { color: #88dd88; }
+  </style>
 </head>
-<body></body>
+<body>
+  <div class="info">
+    <h1>🎀 Астольфо-рандом</h1>
+    <p>Service Worker активирован — теперь можно использовать фон в Zen Browser.</p>
+    <p class="status" id="status">⏳ Регистрация...</p>
+  </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => {
+          document.getElementById('status').textContent = '✅ Service Worker зарегистрирован!';
+          console.log('SW registered:', reg);
+        })
+        .catch(err => {
+          document.getElementById('status').textContent = '❌ Ошибка регистрации SW: ' + err;
+          console.error('SW registration failed:', err);
+        });
+    } else {
+      document.getElementById('status').textContent = '❌ Service Worker не поддерживается';
+    }
+  </script>
+</body>
 </html>
