@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        // Укажи здесь точное количество картинок в твоем репозитории
+        const TOTAL_IMAGES = 10; 
+        
+        // Локально выбираем случайное число
+        const randomNum = Math.floor(Math.random() * TOTAL_IMAGES) + 1;
+        
+        // Моментально перенаправляем браузер на саму картинку
+        window.location.replace(`${randomNum}.png`);
+    </script>
+</head>
+<body></body>
+</html>
