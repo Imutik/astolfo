@@ -1,16 +1,46 @@
 <script>
-const user = window.location.hostname.split('.')[0], repo = 'astolfo';
-fetch(`https://github.com{user}/${repo}/contents/`)
-  .then(res => res.json())
-  .then(data => {
-    const png = data.filter(f => f.name.toLowerCase().endsWith('.png'));
-    const rand = Math.floor(Math.random() * png.length) + 1;
-    fetch(`https://githubusercontent.com{user}/${repo}/main/${rand}.png`)
-      .then(res => res.blob())
-      .then(blob => {
-        const fr = new FileReader();
-        fr.onloadend = () => window.location.replace(fr.result);
-        fr.readAsDataURL(blob);
-      });
-  });
+(function() {
+    // 1. Четко вытягиваем чистый логин пользователя из адреса сайта (первое слово до точки)
+    const hostnameParts = window.location.hostname.split('.');
+    const githubUser = hostnameParts[0]; 
+    const repoName = 'astolfo';
+
+    // 2. Строим точную и правильную ссылку для запроса к API GitHub
+    const apiUrl = 'https://github.com' + githubUser + '/' + repoName + '/contents/';
+
+    // 3. Запрашиваем список файлов с явным указанием правильных заголовков
+    fetch(apiUrl, { headers: { 'Accept': 'application/vnd.github.v3+json' } })
+        .then(function(res) { 
+            return res.json(); 
+        })
+        .then(function(data) {
+            // 4. Фильтруем только файлы, заканчивающиеся на .png
+            const pngFiles = data.filter(function(file) {
+                return file.name.toLowerCase().endsWith('.png');
+            });
+
+            // 5. Автоматически получаем размер папки и выбираем случайный номер от 1 до конца
+            const totalImages = pngFiles.length;
+            const randomNum = Math.floor(Math.random() * totalImages) + 1;
+
+            // 6. Формируем прямую RAW-ссылку на случайный файл
+            const rawImageUrl = 'https://githubusercontent.com' + githubUser + '/' + repoName + '/main/' + randomNum + '.png';
+
+            // 7. Скачиваем картинку в поток байт и отдаем её напрямую в CSS браузера
+            fetch(rawImageUrl)
+                .then(function(imgRes) { 
+                    return imgRes.blob(); 
+                })
+                .then(function(blob) {
+                    const fileReader = new FileReader();
+                    fileReader.onloadend = function() {
+                        window.location.replace(fileReader.result);
+                    };
+                    fileReader.readAsDataURL(blob);
+                });
+        })
+        .catch(function(err) {
+            console.error('Ошибка кастомного рандомизатора:', err);
+        });
+})();
 </script>
