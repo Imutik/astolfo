@@ -1,12 +1,16 @@
 <script>
-const u = window.location.hostname.split('.')[0], r = 'astolfo';
-fetch(`https://github.com{u}/${r}/contents/`)
+const user = window.location.hostname.split('.')[0], repo = 'astolfo';
+fetch(`https://github.com{user}/${repo}/contents/`)
   .then(res => res.json())
-  .then(d => {
-    const p = d.filter(f => f.name.toLowerCase().endsWith('.png'));
-    const img = `https://githubusercontent.com{u}/${r}/main/${Math.floor(Math.random() * p.length) + 1}.png`;
-    fetch(img).then(res => res.blob()).then(b => {
-      const fr = new FileReader(); fr.onloadend = () => window.location.replace(fr.result); fr.readAsDataURL(b);
-    });
+  .then(data => {
+    const png = data.filter(f => f.name.toLowerCase().endsWith('.png'));
+    const rand = Math.floor(Math.random() * png.length) + 1;
+    fetch(`https://githubusercontent.com{user}/${repo}/main/${rand}.png`)
+      .then(res => res.blob())
+      .then(blob => {
+        const fr = new FileReader();
+        fr.onloadend = () => window.location.replace(fr.result);
+        fr.readAsDataURL(blob);
+      });
   });
 </script>
